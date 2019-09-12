@@ -1,24 +1,49 @@
 # python3
+def parent(i):
+    return int((i-1)/2)
+
+
+def left(i):
+    return 2*i+1
+
+
+def right(i):
+    return 2*i+2
+
+
+swaps = []
+
+
+def heapify(a, i):
+    ''' function for mantaing max heap property time-complexity = O(log n) but that it is that is optimized version  '''
+    l = left(i)
+    r = right(i)
+
+    if l <= len(a)-1 and a[i] > a[l]:
+        smallest = l
+    else:
+        smallest = i
+
+    if r <= len(a)-1 and a[smallest] > a[r]:
+        smallest = r
+
+    if smallest != i:
+        a[i], a[smallest] = a[smallest], a[i]
+        swaps.append((i, smallest))
+        heapify(a, smallest)
 
 
 def build_heap(data):
-    """Build a heap from ``data`` inplace.
-
-    Returns a sequence of swaps performed by the algorithm.
-    """
-    # The following naive implementation just sorts the given sequence
-    # using selection sort algorithm and saves the resulting sequence
-    # of swaps. This turns the given array into a heap, but in the worst
-    # case gives a quadratic number of swaps.
-    #
-    # TODO: replace by a more efficient implementation
-    swaps = []
-    for i in range(len(data)):
-        for j in range(i + 1, len(data)):
-            if data[i] > data[j]:
-                swaps.append((i, j))
-                data[i], data[j] = data[j], data[i]
+    for i in range(int(len(data)/2), -1, -1):
+        heapify(data, i)
     return swaps
+
+    # for i in range(len(data)):
+    #     for j in range(i + 1, len(data)):
+    #         if data[i] > data[j]:
+    #             swaps.append((i, j))
+    #             data[i], data[j] = data[j], data[i]
+    # return swaps
 
 
 def main():

@@ -9,21 +9,35 @@ class Database:
         self.ranks = [1] * n_tables
         self.parents = list(range(n_tables))
 
-    def merge(self, src, dst):
-        src_parent = self.get_parent(src)
-        dst_parent = self.get_parent(dst)
+    def find_set(self, i):
+        if i != self.parents[i]:
+            self.parents[i] = self.find_set(self.parents[i])
+        return self.parents[i]
+
+    def merge(self, dst, src):
+
+        src_parent = self.find_set(src)
+        dst_parent = self.find_set(dst)
 
         if src_parent == dst_parent:
-            return False
+            return self.max_row_count
 
-        # merge two components
-        # use union by rank heuristic
-        # update max_row_count with the new maximum table size
-        return True
+        if self.ranks[src_parent] > self.ranks[dst_parent]:
+            self.parents[dst_parent] = src_parent
+            self.row_counts[src_parent] += self.row_counts[dst_parent]
+            self.row_counts[dst_parent] = 0
 
-    def get_parent(self, table):
-        # find parent and compress path
-        return self.parents[table]
+        else:
+            self.parents[src_parent] = dst_parent
+            self.row_counts[dst_parent] += self.row_counts[src_parent]
+            self.row_counts[src_parent] = 0
+
+            if self.ranks[src_parent] == self.ranks[dst_parent]:
+                self.ranks[dst_parent] += 1
+        self.max_row_count = max(self.max_row_count,
+                                 self.row_counts[dst_parent],
+                                 self.row_counts[src_parent])
+        return self.max_row_count
 
 
 def main():
@@ -33,9 +47,7 @@ def main():
     db = Database(counts)
     for i in range(n_queries):
         dst, src = map(int, input().split())
-        db.merge(dst - 1, src - 1)
-        print(db.max_row_count)
+        print(db.merge(dst - 1, src - 1))
 
 
-if __name__ == "__main__":
-    main()
+main()
